@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Link User{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow-lg border-0">
+            <div class="card-header text-center py-4">
+                <i class="fas fa-link fa-2x text-white mb-2"></i>
+                <h2 class="text-white mb-0">Link User to Patient</h2>
+                <p class="text-white-50 mb-0">Patient: {{ patient.name }}</p>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-user me-2 text-primary"></i>{{ form.user_id.label.text }}
+                        </label>
+                        {{ form.user_id(class="form-select form-control-lg") }}
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Select a user account to link with this patient profile
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-primary btn-lg py-3") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

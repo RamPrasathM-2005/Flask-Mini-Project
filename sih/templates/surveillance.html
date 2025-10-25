@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}Advanced Surveillance Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <!-- HEADER -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg" style="background: linear-gradient(135deg, #0d6efd, #6610f2);">
+                <div class="card-body text-center text-white py-5">
+                    <i class="fas fa-chart-line fa-3x mb-3"></i>
+                    <h1 class="display-5 fw-bold mb-2">Public Health Surveillance</h1>
+                    <p class="lead mb-0">Advanced Analytics Dashboard - SDG 3</p>
+                    <div class="row mt-3 justify-content-center">
+                        <div class="col-md-2"><span class="badge bg-light text-primary fs-6">{{ stats.total_patients }}</span> Patients</div>
+                        <div class="col-md-2"><span class="badge bg-light text-danger fs-6">{{ stats.infectious_cases }}</span> Infectious</div>
+                        <div class="col-md-2"><span class="badge bg-light text-success fs-6">{{ stats.vaccinated_patients }}</span> Vaccinated</div>
+                        <div class="col-md-2"><span class="badge bg-warning text-dark fs-6">{{ stats.recent_alerts_count }}</span> Alerts</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- 1. INFECTIOUS CASES BY ORIGIN (BAR CHART) -->
+        <div class="col-lg-6">
+            <div class="card h-100 shadow">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-globe-americas me-2"></i>Infectious Cases by Origin
+                </div>
+                <div class="card-body p-0">
+                    <div style="height: 350px;">
+                        <canvas id="originChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. MONTHLY TRENDS (LINE CHART) -->
+        <div class="col-lg-6">
+            <div class="card h-100 shadow">
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-calendar-alt me-2"></i>Monthly Infectious Trends
+                </div>
+                <div class="card-body p-0">
+                    <div style="height: 350px;">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. DISEASE DISTRIBUTION (DOUGHNUT CHART) -->
+        <div class="col-lg-4">
+            <div class="card h-100 shadow">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-chart-pie me-2"></i>Disease Distribution
+                </div>
+                <div class="card-body p-0">
+                    <div style="height: 300px;">
+                        <canvas id="diseaseChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. VACCINATION COVERAGE (BAR CHART) -->
+        <div class="col-lg-4">
+            <div class="card h-100 shadow">
+                <div class="card-header bg-warning text-dark">
+                    <i class="fas fa-syringe me-2"></i>Vaccination Coverage
+                </div>
+                <div class="card-body p-0">
+                    <div style="height: 300px;">
+                        <canvas id="vaccinationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. RISK SCORES TABLE -->
+        <div class="col-lg-4">
+            <div class="card h-100 shadow">
+                <div class="card-header bg-danger text-white">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Risk Assessment
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0">
+                            <thead class="table-dark">
+                                <tr><th>Origin</th><th>Risk Score</th><th>Status</th></tr>
+                            </thead>
+                            <tbody>
+                                {% for origin, score in risk_scores %}
+                                <tr>
+                                    <td>{{ origin }}</td>
+                                    <td><strong>{{ score }}%</strong></td>
+                                    <td>
+                                        {% if score > 10 %}<span class="badge bg-danger">HIGH</span>
+                                        {% elif score > 5 %}<span class="badge bg-warning">MEDIUM</span>
+                                        {% else %}<span class="badge bg-success">LOW</span>{% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. RECENT ALERTS -->
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-warning text-dark">
+                    <i class="fas fa-bell me-2"></i>Recent Alerts (Last 7 Days)
+                    <span class="badge bg-danger ms-2">{{ stats.recent_alerts_count }}</span>
+                </div>
+                <div class="card-body">
+                    {% if recent_alerts %}
+                    <div class="list-group list-group-flush">
+                        {% for record, name in recent_alerts %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1"><i class="fas fa-user me-2"></i>{{ name }}</h6>
+                                <small>{{ record.date.strftime('%Y-%m-%d') }}</small>
+                            </div>
+                            <p class="mb-1"><strong>{{ record.diagnosis }}</strong></p>
+                            <small class="text-danger">Infectious Case Detected</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                        <h5>No recent alerts</h5>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Origin Bar Chart
+    {% if origins and counts %}
+    new Chart(document.getElementById('originChart'), {
+        type: 'bar', data: {
+            labels: {{ origins|tojson }},
+            datasets: [{ label: 'Cases', data: {{ counts|tojson }}, 
+                backgroundColor: ['#dc3545', '#28a745', '#007bff', '#ffc107', '#6f42c1'] }]
+        }, options: { responsive: true, maintainAspectRatio: false, 
+            scales: { y: { beginAtZero: true } } }
+    });
+    {% endif %}
+
+    // 2. Monthly Line Chart
+    {% if months and monthly_counts %}
+    new Chart(document.getElementById('monthlyChart'), {
+        type: 'line', data: {
+            labels: {{ months|tojson }},
+            datasets: [{ label: 'Cases', data: {{ monthly_counts|tojson }}, 
+                borderColor: '#dc3545', backgroundColor: 'rgba(220,53,69,0.1)', 
+                tension: 0.4, fill: true }]
+        }, options: { responsive: true, maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true } } }
+    });
+    {% endif %}
+
+    // 3. Disease Doughnut Chart
+    {% if disease_types and disease_counts %}
+    new Chart(document.getElementById('diseaseChart'), {
+        type: 'doughnut', data: {
+            labels: {{ disease_types|tojson }},
+            datasets: [{ data: {{ disease_counts|tojson }}, 
+                backgroundColor: ['#dc3545', '#28a745', '#ffc107'] }]
+        }, options: { responsive: true, maintainAspectRatio: false }
+    });
+    {% endif %}
+
+    // 4. Vaccination Bar Chart
+    {% if vac_origins and vac_rates %}
+    new Chart(document.getElementById('vaccinationChart'), {
+        type: 'bar', data: {
+            labels: {{ vac_origins|tojson }},
+            datasets: [{ label: 'Coverage %', data: {{ vac_rates|tojson }}, 
+                backgroundColor: '#28a745' }]
+        }, options: { responsive: true, maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true, max: 100 } } }
+    });
+    {% endif %}
+});
+</script>
+{% endblock %}

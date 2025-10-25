@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Doctor Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4 mt-3">
+    <div class="col-12">
+        <div class="card shadow-lg border-0" style="background: linear-gradient(135deg, #28a745, #218838);">
+            <div class="card-body text-center text-white py-5">
+                <i class="fas fa-user-md fa-4x mb-3"></i>
+                <h1 class="display-5 fw-bold">Welcome, Dr. {{ current_user.username }}</h1>
+                <p class="lead">Migrant Health Records Management System</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form method="POST" class="mb-4">
+    {{ search_form.hidden_tag() }}
+    <div class="input-group input-group-lg shadow">
+        {{ search_form.query(class="form-control", placeholder="Search patients by name...") }}
+        {{ search_form.submit(class="btn btn-primary") }}
+    </div>
+</form>
+
+<div class="card shadow-lg border-0">
+    <div class="card-header bg-primary text-white">
+        <i class="fas fa-users me-2"></i>Migrant Patients ({{ patients.total }} total)
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Age</th>
+                        <th>Gender</th>
+                        <th>Origin</th>
+                        <th>Vaccination</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for patient in patients.items %}
+                    <tr>
+                        <td><span class="badge bg-primary">{{ patient.id }}</span></td>
+                        <td><strong>{{ patient.name }}</strong></td>
+                        <td>{{ patient.age }}</td>
+                        <td>
+                            <i class="fas fa-{{ 'mars' if patient.gender == 'Male' else 'venus' if patient.gender == 'Female' else 'genderless' }} text-muted"></i>
+                            {{ patient.gender }}
+                        </td>
+                        <td>{{ patient.origin }}</td>
+                        <td>
+                            {% if patient.vaccination_status %}
+                                <span class="badge bg-success">{{ patient.vaccination_status }}</span>
+                            {% else %}
+                                <span class="text-muted">N/A</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('patient_detail', patient_id=patient.id) }}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ url_for('add_record', patient_id=patient.id) }}" class="btn btn-sm btn-success">
+                                <i class="fas fa-plus"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <!-- Pagination -->
+        <nav class="p-3">
+            <ul class="pagination justify-content-center">
+                {% if patients.has_prev %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('home', page=patients.prev_num) }}">Previous</a></li>
+                {% endif %}
+                {% if patients.has_next %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('home', page=patients.next_num) }}">Next</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}

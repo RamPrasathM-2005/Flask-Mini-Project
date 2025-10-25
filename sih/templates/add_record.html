@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title or 'Add Record' }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="card shadow-lg border-0">
+            <div class="card-header text-center py-4" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                <i class="fas fa-file-medical fa-2x text-white mb-2"></i>
+                <h2 class="text-white mb-0">{{ title or 'Add Health Record' }}</h2>
+                <p class="text-white-50 mb-0">Patient: {{ patient.name }}</p>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-calendar-day me-2 text-success"></i>{{ form.date.label.text }}
+                        </label>
+                        {{ form.date(class="form-control form-control-lg") }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-notes-medical me-2 text-success"></i>{{ form.symptoms.label.text }}
+                        </label>
+                        {{ form.symptoms(class="form-control form-control-lg", rows="3", placeholder="Describe symptoms...") }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-stethoscope me-2 text-success"></i>{{ form.diagnosis.label.text }}
+                        </label>
+                        {{ form.diagnosis(class="form-control form-control-lg", placeholder="Medical diagnosis") }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-pills me-2 text-success"></i>{{ form.treatment.label.text }}
+                        </label>
+                        {{ form.treatment(class="form-control form-control-lg", rows="3", placeholder="Treatment plan and medications...") }}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-comment-medical me-2 text-success"></i>{{ form.notes.label.text }}
+                        </label>
+                        {{ form.notes(class="form-control form-control-lg", rows="2", placeholder="Additional notes...") }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-disease me-2 text-success"></i>{{ form.disease_type.label.text }}
+                        </label>
+                        {{ form.disease_type(class="form-select form-control-lg") }}
+                    </div>
+
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-success btn-lg py-3") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

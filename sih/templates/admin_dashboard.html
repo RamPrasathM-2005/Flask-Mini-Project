@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card" style="background: linear-gradient(135deg, #0d6efd, #6610f2);">
+            <div class="card-body text-white">
+                <i class="fas fa-users fa-2x mb-3 text-white"></i>
+                <div class="stat-number text-white">{{ patients.total }}</div>
+                <div class="text-white">Total Patients</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card" style="background: linear-gradient(135deg, #dc3545, #c82333);">
+            <div class="card-body text-white">
+                <i class="fas fa-biohazard fa-2x mb-3 text-white"></i>
+                <div class="stat-number text-white">{{ infectious_count }}</div>
+                <div class="text-white">Infectious Cases</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card" style="background: linear-gradient(135deg, #28a745, #20c997);">
+            <div class="card-body text-white">
+                <i class="fas fa-file-medical fa-2x mb-3 text-white"></i>
+                <div class="stat-number text-white">{{ records|length }}</div>
+                <div class="text-white">Total Records</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card" style="background: linear-gradient(135deg, #6f42c1, #5a32a3);">
+            <div class="card-body text-white">
+                <i class="fas fa-user-md fa-2x mb-3 text-white"></i>
+                <div class="stat-number text-white">{{ users|length }}</div>
+                <div class="text-white">Total Users</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SIMPLE SEARCH (FREE VERSION) -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="POST">
+            {{ search_form.hidden_tag() }}
+            <div class="input-group input-group-lg">
+                {{ search_form.query(class="form-control", placeholder="Search patients by name...") }}
+                {{ search_form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Data Tables Section -->
+<div class="row">
+    <!-- Patients Table -->
+    <div class="col-md-12 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-users me-2 text-white"></i>Patients List ({{ patients.total }} total)
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Origin</th>
+                                <th>Vaccination</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for patient in patients.items %}
+                            <tr>
+                                <td>{{ patient.id }}</td>
+                                <td>{{ patient.name }}</td>
+                                <td>{{ patient.age }}</td>
+                                <td>{{ patient.gender }}</td>
+                                <td>{{ patient.origin }}</td>
+                                <td>{{ patient.vaccination_status or 'N/A' }}</td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('patient_detail', patient_id=patient.id) }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye text-white"></i>
+                                        </a>
+                                        <a href="{{ url_for('edit_patient', patient_id=patient.id) }}" class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <form action="{{ url_for('delete_patient', patient_id=patient.id) }}" method="POST" style="display:inline;">
+                                            <button type="submit" class="btn btn-sm btn-danger" 
+                                                    onclick="return confirm('Are you sure?')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <!-- Pagination -->
+                <nav class="p-3">
+                    <ul class="pagination justify-content-center">
+                        {% if patients.has_prev %}
+                        <li class="page-item"><a class="page-link" href="{{ url_for('home', page=patients.prev_num) }}">Previous</a></li>
+                        {% endif %}
+                        {% if patients.has_next %}
+                        <li class="page-item"><a class="page-link" href="{{ url_for('home', page=patients.next_num) }}">Next</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Records -->
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <i class="fas fa-file-medical me-2 text-white"></i>Recent Records (Last 10)
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-success">
+                            <tr>
+                                <th>Date</th>
+                                <th>Diagnosis</th>
+                                <th>Patient</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in records %}
+                            <tr>
+                                <td>{{ record.date }}</td>
+                                <td>{{ record.diagnosis }}</td>
+                                <td>{{ record.patient.name }}</td>
+                                <td>
+                                    <a href="{{ url_for('patient_detail', patient_id=record.patient_id) }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-eye text-white"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-md-3">
+        <a href="{{ url_for('add_patient') }}" class="btn btn-success btn-lg w-100">
+            <i class="fas fa-user-plus me-2"></i>Add Patient
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="{{ url_for('surveillance') }}" class="btn btn-info btn-lg w-100">
+            <i class="fas fa-chart-line me-2"></i>Surveillance
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="{{ url_for('users') }}" class="btn btn-warning btn-lg w-100">
+            <i class="fas fa-users-cog me-2"></i>Manage Users
+        </a>
+    </div>
+    <div class="col-md-3">
+        <a href="{{ url_for('audit_logs') }}" class="btn btn-secondary btn-lg w-100">
+            <i class="fas fa-history me-2"></i>Audit Logs
+        </a>
+    </div>
+</div>
+</div>
+
+<style>
+.stat-card {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.table-dark th {
+    background-color: #0d6efd;
+    color: white;
+}
+
+.table-success th {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-primary i {
+    color: white !important;
+}
+</style>
+{% endblock %}

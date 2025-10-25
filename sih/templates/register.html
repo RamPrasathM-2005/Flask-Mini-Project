@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-10">
+        <div class="card shadow-lg border-0">
+            <div class="card-header text-center py-4" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                <i class="fas fa-user-plus fa-2x text-white mb-2"></i>
+                <h2 class="text-white mb-0">Kerala Health Portal Registration</h2>
+                <p class="text-white-50 mb-0">Smart India Hackathon 2025 - SDG 3</p>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- BASIC FIELDS - ALWAYS VISIBLE -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.username(class="form-control", placeholder="Full Name / Username") }}
+                            {% for error in form.username.errors %}<small class="text-danger">{{ error }}</small>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.email(class="form-control", placeholder="Phone Number (10 digits) / Email") }}
+                            {% for error in form.email.errors %}<small class="text-danger">{{ error }}</small>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.password(class="form-control", placeholder="Password") }}
+                            {% for error in form.password.errors %}<small class="text-danger">{{ error }}</small>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.confirm_password(class="form-control", placeholder="Confirm Password") }}
+                            {% for error in form.confirm_password.errors %}<small class="text-danger">{{ error }}</small>{% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- ✅ ROLE SELECTION -->
+                    <div class="mb-4">
+                        {{ form.role(class="form-select", id="roleSelect") }}
+                        {% for error in form.role.errors %}<small class="text-danger">{{ error }}</small>{% endfor %}
+                    </div>
+                    
+                    <!-- ✅ WORKER FIELDS - SHOW/HIDE BASED ON ROLE -->
+                    <div id="workerFields" style="display: none;">
+                        <hr class="my-4">
+                        <h5 class="text-primary mb-3">
+                            <i class="fas fa-hard-hat me-2"></i>Migrant Worker Details
+                        </h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                {{ form.origin(class="form-select", placeholder="Select Native State") }}
+                                {% for error in form.origin.errors %}<small class="text-danger">{{ error }}</small>{% endfor %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.occupation(class="form-select", placeholder="Select Occupation") }}
+                                {% for error in form.occupation.errors %}<small class="text-danger">{{ error }}</small>{% endfor %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.arrival_date(class="form-control", placeholder="YYYY-MM-DD") }}
+                                {% for error in form.arrival_date.errors %}<small class="text-danger">{{ error }}</small>{% endfor %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                {{ form.employer(class="form-control", placeholder="Company/Contractor Name") }}
+                                {% for error in form.employer.errors %}<small class="text-danger">{{ error }}</small>{% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- INFO BOX -->
+                    <div class="alert alert-info mt-3" id="infoBox">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Select Role:</strong> Choose your role to continue
+                    </div>
+                    
+                    {{ form.submit(class="btn btn-success w-100 py-3 fs-5") }}
+                </form>
+            </div>
+            
+            <!-- LOGIN HELP -->
+            <div class="card-footer text-center bg-light">
+                <small class="text-muted">
+                    Already registered? <a href="{{ url_for('login') }}">Login Here</a>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('roleSelect').addEventListener('change', function() {
+    const workerFields = document.getElementById('workerFields');
+    const infoBox = document.getElementById('infoBox');
+    const role = this.value;
+    
+    if (role === 'migrant') {
+        workerFields.style.display = 'block';
+        infoBox.innerHTML = '<i class="fas fa-info-circle me-2"></i><strong>Worker Login:</strong> Use Phone as Email | All fields required';
+    } else {
+        workerFields.style.display = 'none';
+        infoBox.innerHTML = '<i class="fas fa-info-circle me-2"></i><strong>Admin/Doctor:</strong> Use Email & Password only';
+    }
+});
+
+// Set initial state
+document.getElementById('roleSelect').dispatchEvent(new Event('change'));
+</script>
+{% endblock %}

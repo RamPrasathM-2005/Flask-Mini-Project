@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Complete Profile{% endblock %}
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-8">
+        <div class="card shadow-lg border-0">
+            <div class="card-header text-center py-4" style="background: linear-gradient(135deg, #28a745, #20c997);">
+                <i class="fas fa-user-edit fa-2x text-white mb-2"></i>
+                <h2 class="text-white mb-0">Complete Your Profile</h2>
+                <p class="text-white-50 mb-0">Fill in your complete medical details</p>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" action="">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-user me-2 text-success"></i>{{ form.name.label.text }}
+                            </label>
+                            {{ form.name(class="form-control form-control-lg", placeholder="Full Name") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-birthday-cake me-2 text-success"></i>{{ form.age.label.text }}
+                            </label>
+                            {{ form.age(class="form-control form-control-lg", placeholder="Age") }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-venus-mars me-2 text-success"></i>{{ form.gender.label.text }}
+                            </label>
+                            {{ form.gender(class="form-select form-control-lg") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-map-marker-alt me-2 text-success"></i>{{ form.origin.label.text }}
+                            </label>
+                            {{ form.origin(class="form-control form-control-lg", placeholder="State of Origin (e.g., UP, Bihar)") }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-phone me-2 text-success"></i>{{ form.contact.label.text }}
+                            </label>
+                            {{ form.contact(class="form-control form-control-lg", placeholder="Phone Number") }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">
+                                <i class="fas fa-calendar me-2 text-success"></i>{{ form.dob.label.text }}
+                            </label>
+                            {{ form.dob(class="form-control form-control-lg") }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-home me-2 text-success"></i>{{ form.address.label.text }}
+                        </label>
+                        {{ form.address(class="form-control form-control-lg", rows="3", placeholder="Current Address in Kerala") }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-syringe me-2 text-success"></i>{{ form.vaccination_status.label.text }}
+                        </label>
+                        {{ form.vaccination_status(class="form-control form-control-lg", placeholder="e.g., COVID-19 Fully Vaccinated") }}
+                    </div>
+
+                    <div class="d-grid">
+                        {{ form.submit(class="btn btn-success btn-lg py-3") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
